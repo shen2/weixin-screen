@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>WeUI</title>
+    <link rel="stylesheet" href="./style/weui.css"/>
+<style>
+*{
+    box-sizing:border-box;    
+}
+.button-container
+{
+    padding: 0 12px;
+}
+.my-writer{
+    padding:12px 12px 12px 74px;
+}
+.my-writer .avatar, .message-item .avatar{
+    position: absolute;
+    left: 12px;
+    top: 12px;
+}
+.avatar-image{
+    width:50px;
+    height:50px;
+}
+.my-writer-textarea{
+    width:100%;
+    font-size: 14px;
+    min-height: 5em;
+    padding: 4px;
+}
+.action-bar .weui-btn{
+
+}
+.message-item{
+    padding:12px 12px 12px 74px;
+}
+.message-item .date{
+    font-size:12px;
+    color: #777;
+}
+</style>
+</head>
+<body ontouchstart>
+    <div class="weui-toptips weui-toptips_warn js_tooltips">错误提示</div>
+    <div class="container" id="container">
+        <div class="my-writer">
+            <div class="avatar"><img class="avatar-image" src="" /></div>
+            <div class="writer-container">
+                <textarea class="my-writer-textarea" placeholder="写点什么吧"></textarea>
+            </div>
+            <div class="action-bar"><button type="submit" class="weui-btn weui-btn_mini weui-btn_primary">发布</button></div>
+        </div>
+        <div class="message-list">
+            <div class="message-item">
+                <div class="avatar"><img class="avatar-image" src="" /></div>
+
+                <div class="content">hahaha</div>
+                <div class="date">三分钟前</div>
+            </div>
+        </div>
+        
+    </div>
+
+</body>
+</html>
