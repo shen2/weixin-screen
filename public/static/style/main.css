@@ -1,0 +1,42 @@
+*{
+    box-sizing:border-box;
+}
+.button-container
+{
+    padding: 0 12px;
+}
+.my-writer{
+    padding:12px 12px 12px 74px;
+    position:relative;
+}
+.my-writer .avatar, .message-item .avatar{
+    position: absolute;
+    left: 12px;
+    top: 12px;
+}
+.avatar-image{
+    border-radius:6px;
+    width:50px;
+    height:50px;
+}
+.my-writer-textarea{
+    width:100%;
+    font-size: 14px;
+    min-height: 5em;
+    padding: 4px;
+}
+.action-bar .weui-btn{
+
+}
+.message-item{
+    padding:12px 12px 12px 74px;
+    position:relative;
+}
+.message-item .author-name{
+    font-size: 14px;
+    color: #333;
+}
+.message-item .date{
+    font-size:12px;
+    color: #777;
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title><?php echo $screen['title'];?></title>
+    <link rel="stylesheet" href="/static/style/weui.css"/>
+    <link rel="stylesheet" href="/static/style/main.css"/>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/axios.min.js"></script>
+</head>
+<body ontouchstart>
+    <div class="weui-toptips weui-toptips_warn js_tooltips">错误提示</div>
+    <div class="container" id="container">
+       <h1>{{title}}</h1>
+       <p>{{description}}</p>
+       <div class="button-container">
+           <a v-bind:href="boardUrl" class="weui-btn weui-btn_primary">祝福墙</a>
+           <a v-bind:href="boardUrl" class="weui-btn weui-btn_primary">故事墙</a>
+           <a href="javascript:;" class="weui-btn weui-btn_default">猜照片</a>
+       </div>
+
+       <h2>到场嘉宾</h2>
+       <div class="members">
+           <div class="avatar" v-for="member in memberList">
+              <img class="avatar-image" v-bind:src="member.avatar_url" />
+           </div>
+       </div>
+    </div>
+</body>
+<script>
+var screen_id = <?php echo $screen['_id'];?>;
+var visitor = <?php echo json_encode($visitor);?>;
+var app = new Vue({
+  el: '#container',
+  data: {
+    visitor : visitor,
+    title : '',
+    description : '',
+    boardUrl : '',
+    memberList: []
+  },
+  methods: {
+  },
+  created : function(){
+    var self = this;
+    axios.get('/api/screens/' + screen_id)
+      .then(function (response) {
+        var screen = response.data.screen;
+        self.title = screen.title;
+        self.description = screen.description;
+        self.memberList = screen.members;
+        self.boardUrl = '/screens/' + screen._id + '/board';
+      });
+  }
+});
+</script>
+</html>

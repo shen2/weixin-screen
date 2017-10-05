@@ -1,6 +1,10 @@
 {
     "require": {
-        "slim/slim": "^3.0"
+        "ext-mongodb": "*",
+        "slim/slim": "^3.0",
+        "mongodb/mongodb": "^1.1",
+        "monolog/monolog": "^1.23",
+        "slim/php-view": "^2.2"
     },
     "repositories": {
         "packagist": {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>WeUI</title>
+    <link rel="stylesheet" href="/static/style/weui.css"/>
+    <link rel="stylesheet" href="/static/style/main.css"/>
+    <script src="/static/js/vue.js"></script>
+    <script src="/static/js/axios.min.js"></script>
+</style>
+</head>
+<body ontouchstart>
+    <div class="weui-toptips weui-toptips_warn js_tooltips">错误提示</div>
+    <div class="container" id="container">
+        <form v-on:submit.prevent="postMessage">
+        <div class="my-writer">
+            <div class="avatar"><img class="avatar-image" v-bind:src="visitor.avatar_url" /></div>
+            <div class="writer-container">
+                <textarea class="my-writer-textarea" placeholder="写点什么吧" v-model="writerContent"></textarea>
+            </div>
+            <div class="action-bar"><button type="submit" v-bind:disabled="!writerContent" class="weui-btn weui-btn_mini weui-btn_primary">发布</button></div>
+        </div>
+        </form>
+        <div class="message-list">
+            <div class="message-item" v-for="message in messageList">
+                <div class="avatar"><img class="avatar-image" v-bind:src="message.author.avatar_url" /></div>
+                <div><span class="author-name">{{message.author.name}}</span> <span class="date">{{message.created_at}}</span></div>
+                <div class="content">{{message.content}}</div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+<script>
+var screen_id = <?php echo $screen['_id'];?>;
+var visitor = <?php echo json_encode($visitor);?>;
+var app = new Vue({
+  el: '#container',
+  data: {
+    visitor : visitor,
+    writerContent : '',
+    messageList: []
+  },
+  methods: {
+    postMessage : function(event){
+      var self = this;
+      var params = {
+        screen_id : screen_id,
+        content : this.writerContent,
+        author : this.visitor,
+        date : '刚刚'
+      };
+      axios.post('/api/board/new', params)
+        .then(function(response){
+          var newMessage = response.data.newMessage;
+          self.messageList.unshift(newMessage);
+        });
+      this.writerContent = '';
+    }
+  },
+  created : function(){
+    var self = this;
+    axios.get('/api/board/' + screen_id)
+      .then(function (response) {
+        self.messageList = response.data.messages;
+      });
+  }
+});
+</script>
+</html>
