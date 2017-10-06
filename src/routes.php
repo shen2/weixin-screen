@@ -27,7 +27,7 @@ $app->get('/screens/{screen_id}', function ($request, $response, $args) {
     $screenId = (int) $args['screen_id'];
     $screen = Models\Screen::getById($screenId);
     $screen = $screen->getArrayCopy();
-    if (!in_array($visitor['_id'], $screen['members'])){
+    if ($visitor != 0 && !in_array($visitor['_id'], $screen['members'])){
         Models\Screen::addMember($screenId, $visitor['_id']);
     }
     return $this->view->render($response, 'index.html', [
@@ -117,9 +117,8 @@ $app->post('/api/board/new', function ($request, $response, $args) {
       'author'  => $visitor,
     ];
     $insertedId = Models\Post::insertOne($newMessage);
-    $newMessage['_id'] = $insertedId->__toString();
-    $newMessage['created_at'] = date('H:i', $insertedId->getTimestamp());
-    return $response->withJson(['newMessage'=>$newMessage,]);
+    $newMessage = Models\Post::getById($insertedId);
+    return $response->withJson(['newMessage'=>Models\Post::toJson($newMessage, $visitor['_id']),]);
 });
 
 $app->post('/api/posts/{post_id}/likes', function ($request, $response, $args) {
@@ -129,4 +128,10 @@ $app->post('/api/posts/{post_id}/likes', function ($request, $response, $args) {
         Models\Post::addLike($post['_id'], $visitor['_id']);
     }
     return $response->withJson(['newMessage'=>$newMessage,]);
+});
+$app->delete('/api/posts/{post_id}', function ($request, $response, $args) {
+    $visitor = $request->getAttribute('visitor');
+    $post = Models\Post::getById(new MongoDB\BSON\ObjectID($args['post_id']));
+    Models\Post::deleteById($post['_id']);
+    return $response->withJson([]);
 });

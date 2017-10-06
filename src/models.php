@@ -28,11 +28,13 @@ class User{
     }
 
     public static function getList($idList){
-        $map = [];
+        $list = [];
         foreach($idList as $id){
-            $map[] = self::getCollection()->findOne(['_id' => $id]);
+            $doc = self::getCollection()->findOne(['_id' => $id]);
+            if (!empty($doc))
+                $list[] = $doc;
         }
-        return $map;
+        return $list;
     }
 }
 
@@ -55,11 +57,16 @@ class Post{
         return self::getCollection()->findOne(['_id' => $id]);
     }
 
+    public static function deleteById($id){
+        return self::getCollection()->deleteOne(['_id' => $id]);
+    }
+
     public static function addLike($id, $userId){
         return self::getCollection()->updateOne(['_id'=>$id], ['$addToSet'=> ['likes' => $userId]]);
     }
 
     public static function toJson($doc, $visitor_id){
+        $admins = ['ouxm0wUc3xGZSVsy3g2mQEF-hmW4', 'ouxm0waR9LPympnpEUDjPClG4XMI'];
         $likes = empty($doc['likes']) ? [] : $doc['likes']->getArrayCopy();
         return [
             '_id'     => $doc['_id']->__toString(),
@@ -70,6 +77,7 @@ class Post{
             'likers'  => User::getList($likes),
             'likes'   => count($likes),
             'liked'   => in_array($visitor_id, $likes),
+            'deletable'=> $doc['author']['_id'] == $visitor_id || in_array($visitor_id, $admins),
         ];
     }
 
