@@ -27,6 +27,9 @@ $app->get('/screens/{screen_id}', function ($request, $response, $args) {
     $screenId = (int) $args['screen_id'];
     $screen = Models\Screen::getById($screenId);
     $screen = $screen->getArrayCopy();
+    if (!in_array($visitor['_id'], $screen['members'])){
+        Models\Screen::addMember($screenId, $visitor['_id']);
+    }
     return $this->view->render($response, 'index.html', [
         'screen'  => $screen,
         'visitor' => $visitor,
@@ -77,7 +80,7 @@ $app->get('/weixin-callback', function ($request, $response, $args) {
 
     $_SESSION['visitor_id'] = $user['_id'];
 
-    return $response->withStatus(302)->withHeader('Location', '/');
+    return $response->withStatus(302)->withHeader('Location', '/screens/123');
 });
 
 $app->get('/api/screens/{screen_id}', function ($request, $response, $args) {
@@ -86,18 +89,19 @@ $app->get('/api/screens/{screen_id}', function ($request, $response, $args) {
     $screenId = (int) $args['screen_id'];
     $screen = Models\Screen::getById($screenId);
     $screen = $screen->getArrayCopy();
-    $screen['members'] = Models\User::getMulti($screen['members']);
+    $screen['members'] = Models\User::getList($screen['members']);
     return $response->withJson(['screen'=>$screen,]);
 });
 
 $app->get('/api/board/{screen_id}', function ($request, $response, $args) {
     // Sample log message
     $this->logger->info("Screen route");
+    $visitor = $request->getAttribute('visitor');
     $screenId = (int) $args['screen_id'];
     $postList = [];
     $postListCursor = Models\Post::getByScreenId($screenId);
     foreach($postListCursor as $post){
-        $postList[] = Models\Post::toJson($post);
+        $postList[] = Models\Post::toJson($post, $visitor['_id']);
     }
     return $response->withJson(['messages'=>$postList,]);
 });
@@ -115,5 +119,14 @@ $app->post('/api/board/new', function ($request, $response, $args) {
     $insertedId = Models\Post::insertOne($newMessage);
     $newMessage['_id'] = $insertedId->__toString();
     $newMessage['created_at'] = date('H:i', $insertedId->getTimestamp());
+    return $response->withJson(['newMessage'=>$newMessage,]);
+});
+
+$app->post('/api/posts/{post_id}/likes', function ($request, $response, $args) {
+    $visitor = $request->getAttribute('visitor');
+    $post = Models\Post::getById(new MongoDB\BSON\ObjectID($args['post_id']));
+    if (empty($post['likes']) || !in_array($post['likes'],$visitor['_id'])){
+        Models\Post::addLike($post['_id'], $visitor['_id']);
+    }
     return $response->withJson(['newMessage'=>$newMessage,]);
 });
