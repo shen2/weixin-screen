@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
-    <title>故事板</title>
+    <title><?php echo $screen['_id'] == 123 ? '故事板' : '祝福墙';?> </title>
     <link rel="stylesheet" href="/static/style/weui.css"/>
     <link rel="stylesheet" href="/static/style/main.css"/>
     <script src="/static/js/vue.js"></script>
     <script src="/static/js/axios.min.js"></script>
+<style>
+.notice{
+    margin: 10px 15px;
+    padding: 5px 10px;
+    border: 2px solid #E4C652;
+    border-radius: 5px;
+    background: #EEDC94;
+    font-size: 14px;
+}
 </style>
 </head>
 <body ontouchstart>
     <div class="weui-toptips weui-toptips_warn js_tooltips">错误提示</div>
     <div class="container" id="container">
+        <div class="notice">{{screen.description}}</div>
         <form v-on:submit.prevent="postMessage">
         <div class="my-writer">
             <div class="avatar"><img class="avatar-image" v-bind:src="visitor.avatar_url" /></div>
@@ -36,11 +46,15 @@
 </body>
 <script>
 var screen_id = <?php echo $screen['_id'];?>;
+var screen = <?php echo json_encode($screen);?>;
 var visitor = <?php echo json_encode($visitor);?>;
+</script>
+<script>
 var app = new Vue({
   el: '#container',
   data: {
     visitor : visitor,
+    screen : screen,
     writerContent : '',
     messageList: []
   },

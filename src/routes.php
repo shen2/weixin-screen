@@ -24,10 +24,15 @@ $app->get('/visitor', function ($request, $response, $args) {
 
 $app->get('/screens/{screen_id}', function ($request, $response, $args) {
     $visitor = $request->getAttribute('visitor');
+    if (empty($visitor['_id'])){
+        $redirectUrl = weixinAuthorizeUrl();
+        return $response->withStatus(302)->withHeader('Location', $redirectUrl);
+    }
+
     $screenId = (int) $args['screen_id'];
     $screen = Models\Screen::getById($screenId);
     $screen = $screen->getArrayCopy();
-    if ($visitor != 0 && !in_array($visitor['_id'], $screen['members'])){
+    if ($visitor['_id'] != 0 && !in_array($visitor['_id'], $screen['members'])){
         Models\Screen::addMember($screenId, $visitor['_id']);
     }
     return $this->view->render($response, 'index.html', [
@@ -47,9 +52,29 @@ $app->get('/screens/{screen_id}/board', function ($request, $response, $args) {
     ]);
 })->setName('board');
 
-$app->get('/weixin-login', function ($request, $response, $args) {
+$app->get('/screens/{screen_id}/show', function ($request, $response, $args) {
+    $visitor = $request->getAttribute('visitor');
+    $screenId = (int) $args['screen_id'];
+    $screen = Models\Screen::getById($screenId);
+    $screen = $screen->getArrayCopy();
+    $postList = [];
+    $postListCursor = Models\Post::getByScreenId($screenId);
+    foreach($postListCursor as $post){
+        $postList[] = Models\Post::toJson($post, $visitor['_id']);
+    }
+    $postListCursor = Models\Post::getByScreenId(124);
+    foreach($postListCursor as $post){
+        $wishList[] = Models\Post::toJson($post, $visitor['_id']);
+    }
+    return $this->view->render($response, 'show.html', [
+        'screen'  => $screen,
+        'postList' => $postList,
+        'wishList' => $wishList,
+    ]);
+})->setName('show');
 
-    $redirectUrl = 'https://open.weixin.qq.com/connect/oauth2/authorize?'
+function weixinAuthorizeUrl(){
+    return 'https://open.weixin.qq.com/connect/oauth2/authorize?'
         . http_build_query([
             'appid' => WEIXIN_APPID,
             'redirect_uri'=> 'http://wedding.tuchong.com/weixin-callback',
@@ -58,6 +83,10 @@ $app->get('/weixin-login', function ($request, $response, $args) {
             'state'=> '',
         ])
         . '#wechat_redirect';
+}
+
+$app->get('/weixin-login', function ($request, $response, $args) {
+    $redirectUrl = weixinAuthorizeUrl();
     return $response->withStatus(302)->withHeader('Location', $redirectUrl);
 });
 $app->get('/weixin-callback', function ($request, $response, $args) {
