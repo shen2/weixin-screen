@@ -309,7 +309,12 @@ if ("ontouchstart" in document.documentElement) {
 -->
     <script src="/static/js/impress.js"></script>
 
-    <script>impress().init();</script>
+    <script>
+impress().init();
+<?php if ($autoplay):?>
+  setInterval(function(){impress().next();}, 5000);
+<?php endif;?>
+</script>
 <!--
     
     The `impress()` function also gives you access to the API that controls the presentation.

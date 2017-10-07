@@ -54,6 +54,7 @@ $app->get('/screens/{screen_id}/board', function ($request, $response, $args) {
 
 $app->get('/screens/{screen_id}/show', function ($request, $response, $args) {
     $visitor = $request->getAttribute('visitor');
+    $params = $request->getQueryParams();
     $screenId = (int) $args['screen_id'];
     $screen = Models\Screen::getById($screenId);
     $screen = $screen->getArrayCopy();
@@ -70,6 +71,7 @@ $app->get('/screens/{screen_id}/show', function ($request, $response, $args) {
         'screen'  => $screen,
         'postList' => $postList,
         'wishList' => $wishList,
+        'autoplay' => isset($params['autoplay']),
     ]);
 })->setName('show');
 
